@@ -1,6 +1,8 @@
 ﻿/** 
 *  
 *  Contains functions for formatting a SysTime object
+*  Amended by Laurent Perraut to match Nim times module format definitions
+*  (https://github.com/nim-lang/Nim/blob/devel/lib/pure/times.nim)
 *
 **/
 
@@ -50,6 +52,7 @@ string format(const SysTime dt, string formatString) {
 	return format(dt, dt.dayOfWeek, formatString);
 }
 
+///
 string format(const SysTime dt, DayOfWeek dayOfWeek, string formatString) {
 	validate(formatString);
 	bool nonNull;
@@ -63,7 +66,7 @@ string format(const SysTime dt, DayOfWeek dayOfWeek, string formatString) {
 private {
 
 	// taken from Phobos (where it is private in D2)
-	const ubyte[256] UTF8stride = [
+	const ubyte[256] UTF8stride = [ // @suppress(dscanner.style.phobos_naming_convention)
 		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
@@ -319,7 +322,7 @@ private {
 			pieces[0].dtext = pieces[0].dtext[1..$];
 			if (pieces[$-1].type == 1) {
 				padRight = pieces[$-1].dtext[$-1];
-				pieces[$-1].dtext.length = pieces[$-1].dtext.length - 1;
+				pieces[$-1].dtext.length = pieces[$-1].dtext.length - 1; // @suppress(dscanner.suspicious.length_subtraction)
 			}
 
 		} else if (pieces[$-1].type == 0) {
@@ -331,7 +334,7 @@ private {
 
 			pieces = pieces[0..$-1];
 			padRight = pieces[$-1].dtext[$-1];
-			pieces[$-1].dtext.length = pieces[$-1].dtext.length - 1;
+			pieces[$-1].dtext.length = pieces[$-1].dtext.length - 1; // @suppress(dscanner.suspicious.length_subtraction)
 			if (pieces[0].type == 1) {
 				padLeft = pieces[0].dtext[0];
 				pieces[0].dtext = pieces[0].dtext[1..$];
@@ -349,7 +352,7 @@ private {
 			if (pieces[$-1].type == 1) {
 				padRight = pieces[$-1].dtext[$-1];
 				ulong pos;
-				for (pos = pieces[$-1].dtext.length - 1;
+				for (pos = pieces[$-1].dtext.length - 1; // @suppress(dscanner.suspicious.length_subtraction)
 				  pos > 0 && pieces[$-1].dtext[pos - 1] == padRight;
 				  pos--) {}
 				if (pieces[$-1].dtext.length - pos > fieldWidth) moreOnRight = true;
@@ -390,7 +393,7 @@ private {
 		assert (formattedContent.length == toUTFindex(formattedContent, contentLength));
 
 		// distribute padding
-		ulong padWidth = fieldWidth - contentLength, padLeftWidth = 0, padRightWidth = 0;
+		ulong padWidth = fieldWidth - contentLength, padLeftWidth = 0, padRightWidth = 0; // @suppress(dscanner.suspicious.unmodified)
 		if (padLeft == dchar.init) {
 			padRightWidth = padWidth;
 		} else if (padRight == dchar.init) {
@@ -476,7 +479,7 @@ private {
 				  (lastNumber = 1 - dt.year));
 
 			case "YYY":
-				lastNumber = year < 0 ? -year : year; // year.min remains the same
+				lastNumber = year < 0 ? (-1)*year : year; // year.min remains the same
 				return to!string(year);
 
 			case "b":
@@ -503,11 +506,11 @@ private {
 			case "BBBB":
 				return (year == year.min || year > 0) ? null : "BCE";
 
-			case "m":
+			case "M":
 				lastNumber = month;
 				return format12(month);
 
-			case "mm":
+			case "MM":
 				lastNumber = month;
 				char[] fmt = new char[2];
 				if (month < 10) {
@@ -519,23 +522,23 @@ private {
 				}
 				return cast(string) fmt;
 
-			case "mmm":
+/*			case "mmm":
 				return SHORT_L_MONTH_NAME[month];
 
 			case "Mmm":
 				return SHORT_MONTH_NAME[month];
-
+*/
 			case "MMM":
-				return SHORT_U_MONTH_NAME[month];
-
+				return SHORT_MONTH_NAME[month];
+/*
 			case "mmmm":
 				return LONG_L_MONTH_NAME[month];
 
 			case "Mmmm":
 				return LONG_MONTH_NAME[month];
-
+*/
 			case "MMMM":
-				return LONG_U_MONTH_NAME[month];
+				return LONG_MONTH_NAME[month];
 
 			case "d":
 				lastNumber = day;
@@ -550,26 +553,26 @@ private {
 
 			case "T":
 				return ordinalSuffix(lastNumber, true);
-
+/*
 			case "www":
 				return SHORT_L_DAY_NAME[dow];
-
-			case "Www":
+*/
+			case "ddd":
 				debug (datetimeformat) writefln("Day of week: %d", cast(byte) dow);
 				return SHORT_DAY_NAME[dow];
-
+/*
 			case "WWW":
 				return SHORT_U_DAY_NAME[dow];
 
 			case "wwww":
 				return LONG_L_DAY_NAME[dow];
-
-			case "Wwww":
+*/
+			case "dddd":
 				return LONG_DAY_NAME[dow];
-
+/*
 			case "WWWW":
 				return LONG_U_DAY_NAME[dow];
-
+*/
 			case "h":
 				lastNumber = hour;
 				if (hour == 0) {
@@ -610,11 +613,11 @@ private {
 			case "AA":
 				return hour < 12 ? "AM" : "PM";
 
-			case "i":
+			case "m":
 				lastNumber = minute;
 				return to!string(minute);
 
-			case "ii":
+			case "mm":
 				lastNumber = minute;
 				return formatTwoDigit(minute);
 
@@ -717,7 +720,7 @@ class SysTimeFormatException : Exception {
 	}
 }
 
-
+/*
 ///	Short (three-letter) names of the days of the week.
 immutable string[7] SHORT_L_DAY_NAME = [
 	DayOfWeek.sun: "sun", "mon", "tue", "wed", "thu", "fri", "sat"
@@ -765,6 +768,7 @@ immutable string[13] LONG_U_MONTH_NAME = [
 	null, Month.jan: "JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE",
 	"JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"
 ];
+*/
 
 unittest {
 	import std.stdio;
@@ -773,51 +777,51 @@ unittest {
 
 	SysTime dt = SysTime(DateTime(2005, 9, 8, 16, 51, 9), dur!"msecs"(427));
 	// basic formatting
-	assert (dt.format("dd/mm/yy") == "08/09/05");
-	assert (dt.format("Www dt Mmm yyyy BB") == "Thu 8th Sep 2005 AD");
-	assert (dt.format("h:ii AA") == "4:51 PM");
-	assert (dt.format("yyyy-mm-dd HH:ii:ss") == "2005-09-08 16:51:09");
-	assert (dt.format("HH:ii:ss.FFF") == "16:51:09.427");
+	assert (dt.format("dd/MM/yy") == "08/09/05");
+	assert (dt.format("ddd dt MMM yyyy BB") == "Thu 8th Sep 2005 AD");
+	assert (dt.format("h:mm AA") == "4:51 PM");
+	assert (dt.format("yyyy-MM-dd HH:mm:ss") == "2005-09-08 16:51:09");
+	assert (dt.format("HH:mm:ss.FFF") == "16:51:09.427");
 	// alignment fields
-	assert (dt.format("[------Wwww.....]") == "--Thursday.");
-	assert (dt.format("[11-Wwww.]") == "--Thursday.");
-	assert (dt.format("[-----Wwww......]") == "-Thursday..");
-	assert (dt.format("[-Wwww.11]") == "-Thursday..");
-	assert (dt.format("[9`1Www]") == "111111Thu");
-	assert (dt.format("[`1Wwww-10]") == "1Thursday-");
-	assert (dt.format("[d/m/yyy           ]HH:ii:ss") == "8/9/2005   16:51:09");
+	assert (dt.format("[------dddd.....]") == "--Thursday.");
+	assert (dt.format("[11-dddd.]") == "--Thursday.");
+	assert (dt.format("[-----dddd......]") == "-Thursday..");
+	assert (dt.format("[-dddd.11]") == "-Thursday..");
+	assert (dt.format("[9`1ddd]") == "111111Thu");
+	assert (dt.format("[`1ddd-10]") == "1Thursday-");
+	assert (dt.format("[d/M/yyy           ]HH:mm:ss") == "8/9/2005   16:51:09");
 
-	assert (dt.format("d Mmm yyy{ B}{ HH:ii:ss}") == "8 Sep 2005 16:51:09");
-	assert (dt.format("{d }{Mmm }yyy BB") == "8 Sep 2005 AD");
-	assert (dt.format("HH:ii{:ss}{.FFF}") == "16:51:09.427");
+	assert (dt.format("d MMM yyy{ B}{ HH:mm:ss}") == "8 Sep 2005 16:51:09");
+	assert (dt.format("{d }{MMM }yyy BB") == "8 Sep 2005 AD");
+	assert (dt.format("HH:mm{:ss}{.FFF}") == "16:51:09.427");
 
-	assert (dt.format("HH:ii{:ss}{.FFF}") == "16:51:09.427");
+	assert (dt.format("HH:mm{:ss}{.FFF}") == "16:51:09.427");
 	dt.fracSecs(dur!"msecs"(0));
-	assert (dt.format("HH:ii{:ss}{.FFF}") == "16:51:09.000");
+	assert (dt.format("HH:mm{:ss}{.FFF}") == "16:51:09.000");
 	dt.second = 0;
-	assert (dt.format("HH:ii{:ss}{.FFF}") == "16:51:00.000");
-	assert (dt.format("d Mmm yyy{ B}{ HH:ii:ss}") == "8 Sep 2005 16:51:00");
+	assert (dt.format("HH:mm{:ss}{.FFF}") == "16:51:00.000");
+	assert (dt.format("d MMM yyy{ B}{ HH:mm:ss}") == "8 Sep 2005 16:51:00");
 	dt.hour = 0;
-	assert (dt.format("d Mmm yyy{ B}{ HH:ii:ss}") == "8 Sep 2005 00:51:00");
+	assert (dt.format("d MMM yyy{ B}{ HH:mm:ss}") == "8 Sep 2005 00:51:00");
 	dt.minute = 0;
-	assert (dt.format("d Mmm yyy{ B}{ HH:ii:ss}") == "8 Sep 2005 00:00:00");
-	assert (dt.format("{d }{Mmm }yyy BB") == "8 Sep 2005 AD");
+	assert (dt.format("d MMM yyy{ B}{ HH:mm:ss}") == "8 Sep 2005 00:00:00");
+	assert (dt.format("{d }{MMM }yyy BB") == "8 Sep 2005 AD");
 	dt.month = Month.min;
-	assert (dt.format("{d }{Mmm }yyy BB") == "8 Jan 2005 AD");
+	assert (dt.format("{d }{MMM }yyy BB") == "8 Jan 2005 AD");
 	dt.day = 1;
-	assert (dt.format("{d }{Mmm }yyy BB") == "1 Jan 2005 AD");
+	assert (dt.format("{d }{MMM }yyy BB") == "1 Jan 2005 AD");
 
   dt.month = Month.sep;
   dt.day = 8;
 
 	// nesting of fields and collapsible portions
-	assert (dt.format("[13 Mmmm [d..]]") == " September 8.");
-	assert (dt.format("[13 Mmmm{ d}]") == "  September 8");
+	assert (dt.format("[13 MMMM [d..]]") == " September 8.");
+	assert (dt.format("[13 MMMM{ d}]") == "  September 8");
 	dt.day = 1;
-	assert (dt.format("[13 Mmmm{ d}]") == "  September 1");
-	assert (dt.format("{[13 Mmmm{ d}]}") == "  September 1");
+	assert (dt.format("[13 MMMM{ d}]") == "  September 1");
+	assert (dt.format("{[13 MMMM{ d}]}") == "  September 1");
 	dt.month = Month.min;
-	assert (dt.format("{[13 Mmmm{ d}]}") == "    January 1");
+	assert (dt.format("{[13 MMMM{ d}]}") == "    January 1");
 	dt.day = 8;
-	assert (dt.format("{[13 Mmmm{ d}]}") == "    January 8");
+	assert (dt.format("{[13 MMMM{ d}]}") == "    January 8");
 }

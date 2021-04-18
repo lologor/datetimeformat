@@ -2,10 +2,10 @@
 	"name": "datetimeformat",
 	"homepage": "https://github.com/cmays90/datetimeformat",
 	"authors": [
-		"Chris Mays"
+		"Chris Mays", "Laurent Perraut"
 	],
 	"description": "A DateTime formatting library for D",
-	"copyright": "Copyright © 2016, Chris Mays",
+	"copyright": "Copyright © 2016, Chris Mays - 2021, Laurent Perraut",
 	"configurations": [
                 {
                         "name": "library",
