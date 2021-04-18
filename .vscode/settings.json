@@ -1,6 +1,0 @@
-{
-  "dscanner.ignoredKeys": [
-    "dscanner.suspicious.unmodified",
-    "dscanner.style.phobos_naming_convention"
-  ]
-}
