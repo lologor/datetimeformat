@@ -131,7 +131,7 @@ private {
 	                     ref immutable(char)* charPos, out bool nonNull, ref long lastNumber)
 	in {
 		assert (beginsElement(*charPos));
-	} body {
+	} do {
 		switch (*charPos) {
 			case '[': {
 				charPos++;
@@ -171,7 +171,7 @@ private {
 	string formatLiteral(ref immutable(char)* charPos)
 	in {
 		assert (beginsLiteral(*charPos));
-	} body {
+	} do {
 		switch (*charPos) {
 			case '`': {		// literal character
 				if (*++charPos == '\0') {
@@ -669,7 +669,7 @@ private {
 	string formatTwoDigit(int b)
 	in {
 		assert (b == byte.min || (b >= 0 && b <= 99));
-	} body {
+	} do {
 		if (b == byte.min) return null;
 		char[] fmt = new char[2];
 		fmt[0] = cast(byte) ('0' + b / 10);
@@ -681,7 +681,7 @@ private {
 	in {
 		assert (b >= 0);
 		assert (b <= 12);
-	} body {
+	} do {
 		switch (b) {
 			case 10: return DIGITS12[1..3];
 			case 11: return DIGITS12[0..2];
@@ -771,7 +771,7 @@ immutable string[13] LONG_U_MONTH_NAME = [
 */
 
 unittest {
-	import std.stdio;
+	import std.stdio; // @suppress(dscanner.suspicious.local_imports)
 
 	writefln("Unittest commenced at %s",  Clock.currTime.toString);
 
